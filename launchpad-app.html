@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launchpad — SaaS Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0d0d0d;
+  --paper: #f5f0e8;
+  --cream: #ede8dc;
+  --gold: #c9a84c;
+  --gold-light: #e8d5a0;
+  --rust: #b84c2e;
+  --muted: #7a7265;
+  --border: rgba(0,0,0,0.09);
+  --card: #ffffff;
+  --sidebar-w: 240px;
+  --success: #3a7d5c;
+  --danger: #b84c2e;
+  --blue: #2e5fb8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden}
+
+/* ===== PAGES ===== */
+.page{display:none;min-height:100vh}
+.page.active{display:flex;flex-direction:column}
+.page.app-layout{flex-direction:row;min-height:100vh}
+
+/* ===== NOISE ===== */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6}
+
+/* ===== LANDING ===== */
+.landing-header{display:flex;align-items:center;justify-content:space-between;padding:26px 48px;border-bottom:1px solid var(--border);position:relative;z-index:10;animation:fadeDown .5s ease both}
+.logo{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:900;letter-spacing:-.02em;cursor:pointer}
+.logo span{color:var(--gold)}
+.landing-nav a{text-decoration:none;color:var(--muted);font-size:.875rem;font-weight:500;margin-left:28px;transition:color .2s}
+.landing-nav a:hover{color:var(--ink)}
+.btn-signin{background:var(--ink);color:var(--paper)!important;padding:9px 20px;border-radius:6px;transition:background .2s,transform .15s!important}
+.btn-signin:hover{background:#2a2a2a!important;transform:translateY(-1px)}
+
+.hero{text-align:center;padding:88px 24px 60px;position:relative;z-index:2;animation:fadeUp .6s .1s ease both}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--cream);border:1px solid var(--gold-light);border-radius:100px;padding:5px 15px;font-size:.78rem;font-weight:500;color:var(--muted);margin-bottom:28px;letter-spacing:.02em}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,6vw,5rem);font-weight:900;line-height:1.04;letter-spacing:-.03em;max-width:760px;margin:0 auto 22px}
+h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:1.05rem;color:var(--muted);font-weight:300;max-width:460px;margin:0 auto 44px;line-height:1.75}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:72px}
+
+.proof-bar{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;animation:fadeUp .6s .22s ease both;margin-bottom:72px}
+.avatars{display:flex}
+.av{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--paper);margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff}
+.av:first-child{margin-left:0}
+.proof-text{font-size:.85rem;color:var(--muted)}
+.proof-text strong{color:var(--ink)}
+.stars{color:var(--gold);letter-spacing:1px}
+.dot-sep{width:4px;height:4px;border-radius:50%;background:var(--border)}
+
+.pricing-wrap{max-width:860px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:2;animation:fadeUp .6s .3s ease both}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.p-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px;position:relative;transition:transform .25s,box-shadow .25s}
+.p-card:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(0,0,0,.08)}
+.p-card.featured{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.p-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 13px;border-radius:100px;white-space:nowrap}
+.plan-name{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.featured .plan-name{color:var(--gold-light)}
+.price{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:900;line-height:1;letter-spacing:-.03em}
+.price sup{font-size:1.4rem;vertical-align:super}
+.price-mo{font-size:.82rem;color:var(--muted);margin-bottom:26px}
+.featured .price-mo{color:rgba(245,240,232,.5)}
+.feat-list{list-style:none;margin-bottom:32px}
+.feat-list li{display:flex;align-items:center;gap:11px;padding:8px 0;font-size:.875rem;border-bottom:1px solid rgba(0,0,0,.05)}
+.featured .feat-list li{border-bottom-color:rgba(255,255,255,.07)}
+.feat-list li:last-child{border-bottom:none}
+.ck{width:19px;height:19px;border-radius:50%;background:rgba(201,168,76,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.65rem;color:var(--gold)}
+
+.testimonials-section{background:var(--cream);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:72px 24px;position:relative;z-index:2}
+.section-label{text-align:center;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:44px}
+.t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:980px;margin:0 auto}
+.t-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:30px;transition:transform .25s}
+.t-card:hover{transform:translateY(-3px)}
+.t-card:nth-child(2){transform:translateY(-10px)}
+.t-card:nth-child(2):hover{transform:translateY(-14px)}
+.t-stars{color:var(--gold);font-size:.85rem;margin-bottom:14px}
+.t-quote{font-size:.9rem;line-height:1.7;color:var(--ink);margin-bottom:22px;font-weight:300}
+.t-author{display:flex;align-items:center;gap:11px}
+.t-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0}
+.t-name{font-size:.85rem;font-weight:600}
+.t-role{font-size:.75rem;color:var(--muted)}
+
+.cta-section{text-align:center;padding:90px 24px;position:relative;z-index:2}
+.cta-section h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:900;letter-spacing:-.03em;margin-bottom:14px}
+.cta-section h2 em{font-style:italic;color:var(--gold)}
+.cta-section p{color:var(--muted);margin-bottom:34px;font-weight:300}
+
+landing-footer{border-top:1px solid var(--border);padding:26px 48px;display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--muted);position:relative;z-index:2}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 28px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:transform .15s,box-shadow .15s,background .2s;text-decoration:none}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover{background:#222;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.btn-gold{background:var(--gold);color:var(--ink)}
+.btn-gold:hover{background:#d4b55a;box-shadow:0 8px 24px rgba(201,168,76,.35)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-sm{padding:8px 16px;font-size:.8rem;border-radius:7px}
+.btn-danger{background:#fff0ee;color:var(--danger);border:1px solid #f5c5bc}
+.btn-danger:hover{background:#ffe5e0}
+.btn-success{background:#f0faf5;color:var(--success);border:1px solid #b5ddc9}
+.p-card .btn{display:block;width:100%;text-align:center}
+.btn-basic{background:var(--cream);color:var(--ink);border:1px solid var(--border)}
+.btn-basic:hover{background:var(--gold-light)}
+.btn-pro{background:var(--gold);color:var(--ink)}
+.btn-pro:hover{background:#d4b55a}
+
+/* ===== AUTH PAGE ===== */
+.auth-page{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--paper);position:relative;z-index:1}
+.auth-page.active{display:flex}
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px;width:100%;max-width:440px;animation:scaleIn .3s ease}
+.auth-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;text-align:center;margin-bottom:8px}
+.auth-logo span{color:var(--gold)}
+.auth-sub{text-align:center;color:var(--muted);font-size:.875rem;margin-bottom:32px}
+.auth-tabs{display:flex;background:var(--cream);border-radius:9px;padding:4px;margin-bottom:28px}
+.auth-tab{flex:1;padding:9px;text-align:center;font-size:.85rem;font-weight:600;cursor:pointer;border-radius:7px;transition:background .2s,color .2s;color:var(--muted)}
+.auth-tab.active{background:var(--card);color:var(--ink);box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.8rem;font-weight:600;margin-bottom:7px;letter-spacing:.01em}
+.form-group input,.form-group select{width:100%;padding:12px 15px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;background:var(--paper);color:var(--ink);transition:border-color .2s;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--gold)}
+.auth-note{text-align:center;font-size:.78rem;color:var(--muted);margin-top:16px}
+.auth-note a{color:var(--gold);text-decoration:none;font-weight:500}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:.78rem}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ===== SIDEBAR ===== */
+.sidebar{width:var(--sidebar-w);background:var(--ink);color:var(--paper);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50;transition:transform .3s}
+.sidebar-logo{padding:26px 24px 20px;font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;letter-spacing:-.02em;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo span{color:var(--gold)}
+.sidebar-nav{padding:16px 12px;flex:1;overflow-y:auto}
+.nav-group-label{font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:16px 12px 6px;margin-top:8px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:.875rem;font-weight:500;color:rgba(255,255,255,.6);transition:background .2s,color .2s;margin-bottom:2px}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(201,168,76,.15);color:var(--gold)}
+.nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--gold);color:var(--ink);font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:100px}
+.sidebar-footer{padding:16px 12px;border-top:1px solid rgba(255,255,255,.08)}
+.user-chip{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer;transition:background .2s}
+.user-chip:hover{background:rgba(255,255,255,.06)}
+.user-av{width:34px;height:34px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--ink);flex-shrink:0}
+.user-name{font-size:.85rem;font-weight:600;color:var(--paper)}
+.user-plan{font-size:.72rem;color:rgba(255,255,255,.4)}
+
+/* ===== MAIN CONTENT ===== */
+.main-content{margin-left:var(--sidebar-w);flex:1;min-height:100vh;background:var(--paper);position:relative;z-index:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 36px;border-bottom:1px solid var(--border);background:rgba(245,240,232,.95);backdrop-filter:blur(8px);position:sticky;top:0;z-index:40}
+.topbar-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;letter-spacing:-.02em}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.notif-btn{width:38px;height:38px;border-radius:9px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:background .2s;position:relative}
+.notif-btn:hover{background:var(--cream)}
+.notif-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--rust);border:1.5px solid var(--paper)}
+.content-area{padding:32px 36px}
+
+/* ===== DASHBOARD ===== */
+.dash-section{display:none}
+.dash-section.active{display:block}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:24px;transition:transform .2s,box-shadow .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.06)}
+.stat-label{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-value{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:900;letter-spacing:-.03em;margin-bottom:6px}
+.stat-change{font-size:.78rem;font-weight:500}
+.stat-change.up{color:var(--success)}
+.stat-change.down{color:var(--danger)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
+.widget{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:24px}
+.widget-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.widget-title{font-size:.9rem;font-weight:600;letter-spacing:-.01em}
+.widget-meta{font-size:.75rem;color:var(--muted)}
+
+/* CHART */
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--cream);transition:height .6s cubic-bezier(.34,1.56,.64,1);cursor:pointer;position:relative}
+.bar:hover{background:var(--gold-light)}
+.bar.active-bar{background:var(--gold)}
+.bar-label{font-size:.65rem;color:var(--muted);font-weight:500}
+.bar-tooltip{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-size:.65rem;padding:3px 7px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
+.bar:hover .bar-tooltip{opacity:1}
+
+/* ACTIVITY */
+.activity-list{display:flex;flex-direction:column;gap:0}
+.activity-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.a-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.a-text{flex:1;font-size:.85rem}
+.a-text strong{font-weight:600}
+.a-time{font-size:.75rem;color:var(--muted);white-space:nowrap}
+
+/* PROGRESS BARS */
+.prog-item{margin-bottom:14px}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.82rem}
+.prog-bar-bg{height:7px;background:var(--cream);border-radius:100px;overflow:hidden}
+.prog-bar-fill{height:100%;border-radius:100px;background:var(--gold);transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+
+/* QUICK ACTIONS */
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.qa-btn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 12px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s}
+.qa-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.07);border-color:var(--gold-light)}
+.qa-icon{font-size:1.5rem;margin-bottom:8px}
+.qa-label{font-size:.78rem;font-weight:600;color:var(--muted)}
+
+/* ===== PROJECTS ===== */
+.projects-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0 14px;flex:1;max-width:300px}
+.search-box input{border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.875rem;padding:10px 0;outline:none;width:100%;color:var(--ink)}
+.search-box input::placeholder{color:var(--muted)}
+.filter-btns{display:flex;gap:6px}
+.filter-btn{padding:8px 14px;border-radius:7px;font-size:.8rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .2s}
+.filter-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:24px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.project-card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(0,0,0,.08)}
+.proj-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.proj-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.proj-status{font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:100px}
+.status-active{background:#f0faf5;color:var(--success)}
+.status-review{background:#fff8e8;color:#8b6f00}
+.status-done{background:#f0f0ff;color:#4a4aaa}
+.status-paused{background:#fff0ee;color:var(--danger)}
+.proj-name{font-size:.95rem;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}
+.proj-desc{font-size:.8rem;color:var(--muted);margin-bottom:16px;line-height:1.6}
+.proj-progress{margin-bottom:14px}
+.proj-prog-label{display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:5px}
+.proj-prog-label span:first-child{color:var(--muted)}
+.proj-prog-label span:last-child{font-weight:600}
+.proj-footer{display:flex;align-items:center;justify-content:space-between}
+.proj-members{display:flex}
+.proj-member{width:26px;height:26px;border-radius:50%;border:2px solid var(--card);margin-left:-7px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff}
+.proj-member:first-child{margin-left:0}
+.proj-due{font-size:.72rem;color:var(--muted)}
+
+/* NEW PROJECT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,13,13,.65);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:20px;padding:44px;max-width:500px;width:100%;animation:scaleIn .3s ease;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:18px;right:18px;background:var(--cream);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:background .2s}
+.modal-close:hover{background:var(--gold-light)}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;margin-bottom:6px;letter-spacing:-.02em}
+.modal .modal-sub{color:var(--muted);font-size:.85rem;margin-bottom:28px}
+.modal-actions{display:flex;gap:10px;margin-top:8px}
+.modal-actions .btn{flex:1}
+.success-state{text-align:center;padding:20px 0;display:none}
+.success-icon{width:60px;height:60px;background:rgba(201,168,76,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.7rem;margin:0 auto 18px}
+.success-state h3{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:8px}
+.success-state p{color:var(--muted);font-size:.875rem}
+
+/* ===== ANALYTICS ===== */
+.analytics-filters{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.time-btn{padding:7px 15px;border-radius:7px;font-size:.8rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .2s}
+.time-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.big-chart{height:200px;display:flex;align-items:flex-end;gap:4px;padding:8px 0}
+.big-bar{flex:1;border-radius:4px 4px 0 0;background:var(--cream);transition:height .7s cubic-bezier(.34,1.56,.64,1);cursor:pointer;position:relative;min-height:4px}
+.big-bar:hover{background:var(--gold-light)}
+.big-bar.peak{background:var(--gold)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.855rem}
+th{text-align:left;padding:10px 14px;font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:13px 14px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(245,240,232,.5)}
+.tag{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:.72rem;font-weight:600}
+.tag-up{background:#f0faf5;color:var(--success)}
+.tag-down{background:#fff0ee;color:var(--danger)}
+.tag-neutral{background:var(--cream);color:var(--muted)}
+.pie-wrap{display:flex;align-items:center;gap:28px}
+.pie-svg{flex-shrink:0}
+.pie-legend{display:flex;flex-direction:column;gap:10px}
+.legend-item{display:flex;align-items:center;gap:9px;font-size:.82rem}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ===== SETTINGS ===== */
+.settings-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:32px;overflow-x:auto}
+.stab{padding:12px 20px;font-size:.875rem;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+.stab.active{color:var(--ink);border-bottom-color:var(--gold);font-weight:600}
+.settings-section{display:none}
+.settings-section.active{display:block}
+.settings-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:28px;margin-bottom:18px}
+.settings-card h4{font-size:.95rem;font-weight:700;margin-bottom:4px}
+.settings-card p{font-size:.82rem;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none;padding-bottom:0}
+.setting-info .setting-title{font-size:.88rem;font-weight:500;margin-bottom:2px}
+.setting-info .setting-desc{font-size:.78rem;color:var(--muted)}
+.toggle{width:44px;height:25px;background:var(--cream);border-radius:100px;cursor:pointer;position:relative;transition:background .3s;flex-shrink:0;border:1px solid var(--border)}
+.toggle.on{background:var(--gold);border-color:var(--gold)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .3s}
+.toggle.on::after{transform:translateX(19px)}
+.avatar-upload{display:flex;align-items:center;gap:20px;margin-bottom:24px}
+.avatar-big{width:70px;height:70px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:var(--ink)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.danger-zone{background:#fff8f7;border:1px solid #f5c5bc;border-radius:13px;padding:28px;margin-bottom:18px}
+.danger-zone h4{color:var(--danger);font-size:.95rem;font-weight:700;margin-bottom:4px}
+.danger-zone p{font-size:.82rem;color:var(--muted);margin-bottom:18px}
+
+/* ===== BILLING ===== */
+.billing-hero{background:var(--ink);color:var(--paper);border-radius:16px;padding:32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between}
+.billing-plan-name{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;margin-bottom:4px}
+.billing-plan-desc{font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:16px}
+.billing-price{font-size:2.5rem;font-weight:700;font-family:'Playfair Display',serif}
+.billing-price span{font-size:1rem;font-weight:400;color:rgba(255,255,255,.5)}
+.billing-cycle{display:flex;gap:6px}
+.cycle-opt{padding:7px 16px;border-radius:7px;font-size:.8rem;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);transition:all .2s;background:transparent}
+.cycle-opt.active{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.invoice-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.invoice-row:last-child{border-bottom:none}
+.inv-date{font-size:.85rem;font-weight:500}
+.inv-amount{font-weight:600;font-size:.9rem}
+.inv-status{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:100px;background:#f0faf5;color:var(--success)}
+.inv-dl{font-size:.8rem;color:var(--gold);cursor:pointer;text-decoration:underline}
+.card-display{background:linear-gradient(135deg,#0d0d0d 0%,#2a2a2a 100%);border-radius:14px;padding:24px;color:white;font-family:'DM Sans',sans-serif;position:relative;overflow:hidden;margin-bottom:16px}
+.card-display::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(201,168,76,.15)}
+.card-chip{font-size:1.2rem;margin-bottom:16px}
+.card-number{font-size:1.1rem;letter-spacing:.15em;margin-bottom:16px;font-weight:300}
+.card-meta{display:flex;justify-content:space-between;font-size:.78rem;opacity:.7}
+.usage-bar-wrap{margin-bottom:20px}
+.usage-header{display:flex;justify-content:space-between;margin-bottom:8px;font-size:.875rem}
+.usage-bar-bg{height:10px;background:var(--cream);border-radius:100px;overflow:hidden}
+.usage-bar-fill{height:100%;border-radius:100px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+
+/* ===== NOTIFICATIONS ===== */
+.notif-panel{position:fixed;top:72px;right:24px;width:340px;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.12);z-index:300;display:none;animation:scaleIn .2s ease;transform-origin:top right}
+.notif-panel.open{display:block}
+.notif-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border)}
+.notif-header span{font-size:.9rem;font-weight:700}
+.notif-clear{font-size:.75rem;color:var(--gold);cursor:pointer;font-weight:500}
+.notif-item{display:flex;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.notif-item:hover{background:var(--paper)}
+.notif-item:last-child{border-bottom:none}
+.notif-dot-i{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:6px}
+.notif-dot-i.read{background:transparent;border:1.5px solid var(--border)}
+.notif-text{font-size:.82rem;line-height:1.5}
+.notif-text strong{font-weight:600}
+.notif-ts{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+/* ===== TOAST ===== */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:10px;font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:10px;animation:toastIn .3s ease;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.success .t-icon{color:var(--gold)}
+.toast.error .t-icon{color:var(--rust)}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(12px)}}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main-content{margin-left:0}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .grid-2,.grid-3,.projects-grid{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+  .t-grid{grid-template-columns:1fr}
+  .t-card:nth-child(2){transform:none}
+  .landing-nav{display:none}
+  .quick-actions{grid-template-columns:repeat(2,1fr)}
+  .form-row-2{grid-template-columns:1fr}
+  .billing-hero{flex-direction:column;gap:20px;align-items:flex-start}
+  .topbar{padding:16px 20px}
+  .content-area{padding:24px 20px}
+}
+@media(max-width:500px){
+  .stats-row{grid-template-columns:1fr}
+}
+
+/* ===== MISC ===== */
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted)}
+.empty-icon{font-size:2.5rem;margin-bottom:12px}
+.empty-state h4{font-size:1rem;font-weight:600;margin-bottom:6px;color:var(--ink)}
+.empty-state p{font-size:.85rem}
+.section-divider{margin:28px 0 0;border-top:1px solid var(--border)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:100px;font-size:.75rem;font-weight:600}
+.chip-gold{background:rgba(201,168,76,.12);color:#8b6800}
+.chip-green{background:#f0faf5;color:var(--success)}
+.chip-red{background:#fff0ee;color:var(--danger)}
+.chip-blue{background:#f0f4ff;color:var(--blue)}
+</style>
+</head>
+<body>
+
+<!-- ======================================================= -->
+<!--  LANDING PAGE                                           -->
+<!-- ======================================================= -->
+<div id="pg-landing" class="page active" style="flex-direction:column">
+  <header class="landing-header">
+    <div class="logo" onclick="showPage('pg-landing')">Launch<span>pad</span></div>
+    <nav class="landing-nav">
+      <a href="#">Features</a>
+      <a href="#">Docs</a>
+      <a href="#">Blog</a>
+      <a href="#" onclick="showPage('pg-auth');return false" class="btn-signin">Sign in</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-badge"><div class="dot"></div> New — AI-powered insights are live</div>
+    <h1>The tool that makes your<br><em>workflow effortless.</em></h1>
+    <p class="hero-sub">Stop wrestling with complexity. Launchpad gives your team everything they need to ship faster, smarter, without the chaos.</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="showPage('pg-auth')">Start free trial →</button>
+      <button class="btn btn-ghost">Watch demo</button>
+    </div>
+  </section>
+
+  <div class="proof-bar">
+    <div class="avatars">
+      <div class="av" style="background:#8b6f47">JM</div>
+      <div class="av" style="background:#b84c2e">SR</div>
+      <div class="av" style="background:#4a7c59">AK</div>
+      <div class="av" style="background:#5c5c8a">TL</div>
+      <div class="av" style="background:#c9a84c;color:#0d0d0d">+</div>
+    </div>
+    <span class="proof-text"><strong>2,400+</strong> teams onboard</span>
+    <div class="dot-sep"></div>
+    <span class="stars">★★★★★</span>
+    <span class="proof-text"><strong>4.9</strong> avg rating</span>
+    <div class="dot-sep"></div>
+    <span class="proof-text">Trusted by teams at <strong>Stripe, Notion & Linear</strong></span>
+  </div>
+
+  <section class="pricing-wrap">
+    <div class="pricing-grid">
+      <div class="p-card">
+        <div class="plan-name">Basic</div>
+        <div class="price"><sup>$</sup>19</div>
+        <div class="price-mo">per user / month</div>
+        <ul class="feat-list">
+          <li><div class="ck">✓</div> Up to 5 team members</li>
+          <li><div class="ck">✓</div> 10 active projects</li>
+          <li><div class="ck">✓</div> 5 GB storage</li>
+          <li><div class="ck">✓</div> Core integrations</li>
+          <li><div class="ck">✓</div> Email support</li>
+          <li><div class="ck">✓</div> 30-day analytics</li>
+        </ul>
+        <button class="btn btn-basic" onclick="openCheckout('Basic','$19/mo')">Get started free →</button>
+      </div>
+      <div class="p-card featured">
+        <div class="p-badge">Most Popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="price"><sup>$</sup>49</div>
+        <div class="price-mo">per user / month</div>
+        <ul class="feat-list">
+          <li><div class="ck">✓</div> Unlimited team members</li>
+          <li><div class="ck">✓</div> Unlimited projects</li>
+          <li><div class="ck">✓</div> 100 GB storage</li>
+          <li><div class="ck">✓</div> All integrations + API</li>
+          <li><div class="ck">✓</div> 24/7 priority support</li>
+          <li><div class="ck">✓</div> AI insights + full analytics</li>
+        </ul>
+        <button class="btn btn-pro" onclick="openCheckout('Pro','$49/mo')">Start Pro free trial →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials-section">
+    <div class="section-label">What our customers say</div>
+    <div class="t-grid">
+      <div class="t-card">
+        <div class="t-stars">★★★★★</div>
+        <p class="t-quote">"Launchpad cut our sprint planning time in half. What used to take a 2-hour meeting is now done in <strong>20 minutes</strong>."</p>
+        <div class="t-author"><div class="t-av" style="background:#8b6f47">JM</div><div><div class="t-name">Jamie Morgan</div><div class="t-role">Head of Product, Acme Corp</div></div></div>
+      </div>
+      <div class="t-card">
+        <div class="t-stars">★★★★★</div>
+        <p class="t-quote">"We switched from three tools to just Launchpad. Collaboration is <strong>night and day</strong> better — saving $400/month."</p>
+        <div class="t-author"><div class="t-av" style="background:#b84c2e">SR</div><div><div class="t-name">Sofia Reyes</div><div class="t-role">CTO, Bloom Ventures</div></div></div>
+      </div>
+      <div class="t-card">
+        <div class="t-stars">★★★★★</div>
+        <p class="t-quote">"The AI insights surfaced a bottleneck we'd ignored for months. Fixed it in a day. <strong>ROI was immediate.</strong>"</p>
+        <div class="t-author"><div class="t-av" style="background:#4a7c59">AK</div><div><div class="t-name">Arjun Kapoor</div><div class="t-role">Engineering Lead, Petal Studio</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Ready to <em>transform</em> your workflow?</h2>
+    <p>14-day free trial. No credit card required. Cancel anytime.</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="showPage('pg-auth')">Start free trial</button>
+      <button class="btn btn-ghost">Book a demo</button>
+    </div>
+  </section>
+
+  <footer style="border-top:1px solid var(--border);padding:24px 48px;display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--muted);position:relative;z-index:2">
+    <div class="logo" style="font-size:1rem">Launch<span>pad</span></div>
+    <div>© 2026 Launchpad Inc.</div>
+    <div>Privacy · Terms · Security</div>
+  </footer>
+</div>
+
+<!-- ======================================================= -->
+<!--  AUTH PAGE                                              -->
+<!-- ======================================================= -->
+<div id="pg-auth" class="auth-page">
+  <div class="auth-box">
+    <div class="auth-logo">Launch<span>pad</span></div>
+    <div class="auth-sub">Your workflow, supercharged.</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Sign in</div>
+      <div class="auth-tab" onclick="switchAuthTab('signup')">Create account</div>
+    </div>
+
+    <div id="auth-login">
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="login-email" placeholder="you@company.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••" />
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="doLogin()">Sign in →</button>
+      <div class="auth-divider">or</div>
+      <button class="btn btn-ghost" style="width:100%">Continue with Google</button>
+      <p class="auth-note">Forgot your password? <a href="#">Reset it</a></p>
+    </div>
+
+    <div id="auth-signup" style="display:none">
+      <div class="form-row-2">
+        <div class="form-group"><label>First name</label><input type="text" placeholder="Sarah" /></div>
+        <div class="form-group"><label>Last name</label><input type="text" placeholder="Johnson" /></div>
+      </div>
+      <div class="form-group"><label>Work email</label><input type="email" placeholder="sarah@company.com" /></div>
+      <div class="form-group"><label>Password</label><input type="password" placeholder="Min. 8 characters" /></div>
+      <div class="form-group">
+        <label>Plan</label>
+        <select>
+          <option>Basic — $19/mo</option>
+          <option selected>Pro — $49/mo (14-day free trial)</option>
+        </select>
+      </div>
+      <button class="btn btn-gold" style="width:100%;margin-top:4px" onclick="doSignup()">Create my account →</button>
+      <p class="auth-note">By signing up you agree to our <a href="#">Terms</a></p>
+    </div>
+
+    <p style="text-align:center;margin-top:20px;font-size:.78rem;color:var(--muted)">← <a href="#" onclick="showPage('pg-landing');return false" style="color:var(--gold);text-decoration:none;font-weight:500">Back to homepage</a></p>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!--  APP SHELL                                              -->
+<!-- ======================================================= -->
+<div id="pg-app" class="page app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">Launch<span>pad</span></div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Workspace</div>
+      <div class="nav-item active" onclick="switchDash('dashboard')">
+        <span class="nav-icon">⚡</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="switchDash('projects')">
+        <span class="nav-icon">📁</span> Projects
+        <span class="nav-badge">6</span>
+      </div>
+      <div class="nav-item" onclick="switchDash('analytics')">
+        <span class="nav-icon">📈</span> Analytics
+      </div>
+
+      <div class="nav-group-label">Account</div>
+      <div class="nav-item" onclick="switchDash('billing')">
+        <span class="nav-icon">💳</span> Billing
+      </div>
+      <div class="nav-item" onclick="switchDash('settings')">
+        <span class="nav-icon">⚙️</span> Settings
+      </div>
+
+      <div class="nav-group-label">Support</div>
+      <div class="nav-item" onclick="showToast('Opening documentation...','ℹ️')">
+        <span class="nav-icon">📖</span> Docs
+      </div>
+      <div class="nav-item" onclick="showToast('Support chat coming soon!','💬')">
+        <span class="nav-icon">💬</span> Help & Support
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip" onclick="switchDash('settings')">
+        <div class="user-av">SJ</div>
+        <div>
+          <div class="user-name">Sarah Johnson</div>
+          <div class="user-plan">Pro Plan</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="notif-btn" onclick="toggleNotifs()" title="Notifications">
+          🔔
+          <div class="notif-dot" id="notif-dot"></div>
+        </div>
+        <button class="btn btn-gold btn-sm" id="topbar-cta" onclick="openNewProject()">+ New Project</button>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign out</button>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- ===== DASHBOARD SECTION ===== -->
+      <div class="dash-section active" id="section-dashboard">
+        <div class="quick-actions">
+          <div class="qa-btn" onclick="openNewProject()"><div class="qa-icon">📁</div><div class="qa-label">New Project</div></div>
+          <div class="qa-btn" onclick="switchDash('analytics')"><div class="qa-icon">📈</div><div class="qa-label">View Analytics</div></div>
+          <div class="qa-btn" onclick="openInviteModal()"><div class="qa-icon">👥</div><div class="qa-label">Invite Team</div></div>
+          <div class="qa-btn" onclick="switchDash('billing')"><div class="qa-icon">💳</div><div class="qa-label">Manage Plan</div></div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-label">Active Projects</div><div class="stat-value" id="stat-projects">6</div><div class="stat-change up">↑ 2 this month</div></div>
+          <div class="stat-card"><div class="stat-label">Tasks Completed</div><div class="stat-value">142</div><div class="stat-change up">↑ 18% vs last mo.</div></div>
+          <div class="stat-card"><div class="stat-label">Team Members</div><div class="stat-value">12</div><div class="stat-change up">↑ 3 added</div></div>
+          <div class="stat-card"><div class="stat-label">MRR</div><div class="stat-value">$49</div><div class="stat-change" style="color:var(--muted)">Pro plan</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="widget">
+            <div class="widget-header">
+              <div class="widget-title">Weekly Activity</div>
+              <div class="widget-meta">Tasks completed</div>
+            </div>
+            <div class="chart-bars" id="weekly-chart"></div>
+            <div style="display:flex;gap:0" id="weekly-labels"></div>
+          </div>
+          <div class="widget">
+            <div class="widget-header">
+              <div class="widget-title">Recent Activity</div>
+              <button class="btn btn-ghost btn-sm">View all</button>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item"><div class="a-icon" style="background:#fff8e8">📋</div><div class="a-text"><strong>Design Refresh</strong> moved to Review</div><div class="a-time">2m ago</div></div>
+              <div class="activity-item"><div class="a-icon" style="background:#f0faf5">✅</div><div class="a-text"><strong>API v2 spec</strong> marked complete</div><div class="a-time">18m ago</div></div>
+              <div class="activity-item"><div class="a-icon" style="background:#f0f4ff">👤</div><div class="a-text"><strong>Marcus Lee</strong> joined the workspace</div><div class="a-time">1h ago</div></div>
+              <div class="activity-item"><div class="a-icon" style="background:#fff0ee">🔗</div><div class="a-text"><strong>Stripe</strong> integration connected</div><div class="a-time">3h ago</div></div>
+              <div class="activity-item"><div class="a-icon" style="background:rgba(201,168,76,.1)">⭐</div><div class="a-text"><strong>Q2 Roadmap</strong> milestone reached</div><div class="a-time">Yesterday</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="widget" style="grid-column:span 2">
+            <div class="widget-header">
+              <div class="widget-title">Project Progress</div>
+              <div class="widget-meta">6 active</div>
+            </div>
+            <div class="prog-item"><div class="prog-header"><span>Design Refresh</span><span>78%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:78%"></div></div></div>
+            <div class="prog-item"><div class="prog-header"><span>API v2 Integration</span><span>55%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:55%;background:#4a7c59"></div></div></div>
+            <div class="prog-item"><div class="prog-header"><span>Mobile App MVP</span><span>32%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:32%;background:#5c5c8a"></div></div></div>
+            <div class="prog-item"><div class="prog-header"><span>Marketing Site Revamp</span><span>90%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:90%;background:#b84c2e"></div></div></div>
+          </div>
+          <div class="widget">
+            <div class="widget-header"><div class="widget-title">Storage Used</div></div>
+            <div style="text-align:center;padding:12px 0">
+              <div style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;margin-bottom:4px">3.2<span style="font-size:1rem;font-weight:400;color:var(--muted)">GB</span></div>
+              <div style="font-size:.78rem;color:var(--muted);margin-bottom:16px">of 100 GB used</div>
+              <div class="prog-bar-bg" style="height:10px"><div class="prog-bar-fill" style="width:3.2%"></div></div>
+              <div style="font-size:.72rem;color:var(--muted);margin-top:8px">96.8 GB remaining</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PROJECTS SECTION ===== -->
+      <div class="dash-section" id="section-projects">
+        <div class="projects-toolbar">
+          <div class="search-box">
+            <span style="color:var(--muted)">🔍</span>
+            <input type="text" placeholder="Search projects..." id="proj-search" oninput="filterProjects()" />
+          </div>
+          <div class="filter-btns">
+            <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+            <button class="filter-btn" onclick="setFilter('active',this)">Active</button>
+            <button class="filter-btn" onclick="setFilter('review',this)">In Review</button>
+            <button class="filter-btn" onclick="setFilter('done',this)">Done</button>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="openNewProject()">+ New Project</button>
+        </div>
+        <div class="projects-grid" id="projects-grid"></div>
+      </div>
+
+      <!-- ===== ANALYTICS SECTION ===== -->
+      <div class="dash-section" id="section-analytics">
+        <div class="analytics-filters">
+          <button class="time-btn" onclick="setTime('7d',this)">7 days</button>
+          <button class="time-btn active" onclick="setTime('30d',this)">30 days</button>
+          <button class="time-btn" onclick="setTime('90d',this)">90 days</button>
+          <button class="time-btn" onclick="setTime('1y',this)">1 year</button>
+        </div>
+
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="stat-card"><div class="stat-label">Page Views</div><div class="stat-value">24.8k</div><div class="stat-change up">↑ 12.4%</div></div>
+          <div class="stat-card"><div class="stat-label">Unique Users</div><div class="stat-value">8,312</div><div class="stat-change up">↑ 7.2%</div></div>
+          <div class="stat-card"><div class="stat-label">Avg. Session</div><div class="stat-value">4:23</div><div class="stat-change down">↓ 0.8%</div></div>
+          <div class="stat-card"><div class="stat-label">Conversion</div><div class="stat-value">3.6%</div><div class="stat-change up">↑ 0.4pp</div></div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:18px">
+          <div class="widget" style="grid-column:span 2">
+            <div class="widget-header"><div class="widget-title">Traffic Overview</div><div class="widget-meta" id="analytics-range">Last 30 days</div></div>
+            <div class="big-chart" id="big-chart"></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="widget">
+            <div class="widget-header"><div class="widget-title">Top Pages</div></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Page</th><th>Views</th><th>Change</th></tr></thead>
+                <tbody>
+                  <tr><td>/dashboard</td><td>8,421</td><td><span class="tag tag-up">↑ 14%</span></td></tr>
+                  <tr><td>/projects</td><td>5,902</td><td><span class="tag tag-up">↑ 9%</span></td></tr>
+                  <tr><td>/analytics</td><td>3,214</td><td><span class="tag tag-down">↓ 3%</span></td></tr>
+                  <tr><td>/settings</td><td>1,889</td><td><span class="tag tag-neutral">0%</span></td></tr>
+                  <tr><td>/billing</td><td>922</td><td><span class="tag tag-up">↑ 22%</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="widget">
+            <div class="widget-header"><div class="widget-title">Traffic Sources</div></div>
+            <div class="pie-wrap">
+              <svg class="pie-svg" width="110" height="110" viewBox="0 0 42 42">
+                <circle r="15.91549430918954" cx="21" cy="21" fill="transparent" stroke="#c9a84c" stroke-width="10" stroke-dasharray="45 55" stroke-dashoffset="25"/>
+                <circle r="15.91549430918954" cx="21" cy="21" fill="transparent" stroke="#4a7c59" stroke-width="10" stroke-dasharray="28 72" stroke-dashoffset="-20"/>
+                <circle r="15.91549430918954" cx="21" cy="21" fill="transparent" stroke="#5c5c8a" stroke-width="10" stroke-dasharray="17 83" stroke-dashoffset="-48"/>
+                <circle r="15.91549430918954" cx="21" cy="21" fill="transparent" stroke="#b84c2e" stroke-width="10" stroke-dasharray="10 90" stroke-dashoffset="-65"/>
+              </svg>
+              <div class="pie-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#c9a84c"></div> Organic — 45%</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#4a7c59"></div> Direct — 28%</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#5c5c8a"></div> Referral — 17%</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#b84c2e"></div> Paid — 10%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== BILLING SECTION ===== -->
+      <div class="dash-section" id="section-billing">
+        <div class="billing-hero">
+          <div>
+            <div class="billing-plan-name">Pro Plan</div>
+            <div class="billing-plan-desc">Full access · Billed monthly · Renews Apr 30, 2026</div>
+            <div class="billing-price">$49<span>/mo</span></div>
+          </div>
+          <div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Billing cycle</div>
+            <div class="billing-cycle">
+              <div class="cycle-opt active" onclick="setCycle('monthly',this)">Monthly</div>
+              <div class="cycle-opt" onclick="setCycle('annual',this)">Annual <span style="font-size:.7rem;background:rgba(201,168,76,.3);padding:2px 6px;border-radius:4px;margin-left:4px">Save 20%</span></div>
+            </div>
+            <div style="margin-top:16px;display:flex;gap:10px">
+              <button class="btn btn-gold btn-sm" onclick="showToast('Redirecting to upgrade...','⬆️')">Upgrade plan</button>
+              <button class="btn btn-sm" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:none" onclick="showToast('Cancellation flow would open here.','⚠️')">Cancel plan</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="widget">
+            <div class="widget-header"><div class="widget-title">Usage This Month</div></div>
+            <div class="usage-bar-wrap">
+              <div class="usage-header"><span>Projects</span><span style="font-weight:600">6 / unlimited</span></div>
+              <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:100%;background:var(--gold)"></div></div>
+            </div>
+            <div class="usage-bar-wrap">
+              <div class="usage-header"><span>Team Members</span><span style="font-weight:600">12 / unlimited</span></div>
+              <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:100%;background:#4a7c59"></div></div>
+            </div>
+            <div class="usage-bar-wrap">
+              <div class="usage-header"><span>Storage</span><span style="font-weight:600">3.2 GB / 100 GB</span></div>
+              <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:3.2%;background:#5c5c8a"></div></div>
+            </div>
+            <div class="usage-bar-wrap">
+              <div class="usage-header"><span>API Calls</span><span style="font-weight:600">14,200 / 100,000</span></div>
+              <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:14.2%;background:#b84c2e"></div></div>
+            </div>
+          </div>
+
+          <div class="widget">
+            <div class="widget-header"><div class="widget-title">Payment Method</div></div>
+            <div class="card-display">
+              <div class="card-chip">💳</div>
+              <div class="card-number">•••• •••• •••• 4242</div>
+              <div class="card-meta"><span>Sarah Johnson</span><span>12 / 28</span></div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openCardModal()">Update card</button>
+              <button class="btn btn-danger btn-sm" onclick="showToast('Card removal requires confirmation.','⚠️')">Remove</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="widget">
+          <div class="widget-header"><div class="widget-title">Invoice History</div><button class="btn btn-ghost btn-sm" onclick="showToast('Downloading all invoices...','📥')">Download all</button></div>
+          <div class="invoice-row"><div><div class="inv-date">April 2026</div><div style="font-size:.75rem;color:var(--muted)">Pro Plan · Monthly</div></div><div style="display:flex;align-items:center;gap:16px"><div class="inv-amount">$49.00</div><div class="inv-status">Paid</div><div class="inv-dl" onclick="showToast('Downloading invoice...','📄')">PDF</div></div></div>
+          <div class="invoice-row"><div><div class="inv-date">March 2026</div><div style="font-size:.75rem;color:var(--muted)">Pro Plan · Monthly</div></div><div style="display:flex;align-items:center;gap:16px"><div class="inv-amount">$49.00</div><div class="inv-status">Paid</div><div class="inv-dl" onclick="showToast('Downloading invoice...','📄')">PDF</div></div></div>
+          <div class="invoice-row"><div><div class="inv-date">February 2026</div><div style="font-size:.75rem;color:var(--muted)">Pro Plan · Monthly</div></div><div style="display:flex;align-items:center;gap:16px"><div class="inv-amount">$49.00</div><div class="inv-status">Paid</div><div class="inv-dl" onclick="showToast('Downloading invoice...','📄')">PDF</div></div></div>
+          <div class="invoice-row"><div><div class="inv-date">January 2026</div><div style="font-size:.75rem;color:var(--muted)">Basic Plan · Monthly</div></div><div style="display:flex;align-items:center;gap:16px"><div class="inv-amount">$19.00</div><div class="inv-status">Paid</div><div class="inv-dl" onclick="showToast('Downloading invoice...','📄')">PDF</div></div></div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS SECTION ===== -->
+      <div class="dash-section" id="section-settings">
+        <div class="settings-tabs">
+          <div class="stab active" onclick="switchSettingsTab('profile',this)">Profile</div>
+          <div class="stab" onclick="switchSettingsTab('notifications',this)">Notifications</div>
+          <div class="stab" onclick="switchSettingsTab('security',this)">Security</div>
+          <div class="stab" onclick="switchSettingsTab('team',this)">Team</div>
+          <div class="stab" onclick="switchSettingsTab('integrations',this)">Integrations</div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="settings-section active" id="stab-profile">
+          <div class="settings-card">
+            <h4>Profile Information</h4>
+            <p>Update your personal details and public profile.</p>
+            <div class="avatar-upload">
+              <div class="avatar-big">SJ</div>
+              <div>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('File upload would open here.','📸')">Upload photo</button>
+                <div style="font-size:.75rem;color:var(--muted);margin-top:6px">JPG, PNG up to 2MB</div>
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group"><label>First name</label><input type="text" value="Sarah" /></div>
+              <div class="form-group"><label>Last name</label><input type="text" value="Johnson" /></div>
+            </div>
+            <div class="form-group"><label>Email address</label><input type="email" value="sarah@company.com" /></div>
+            <div class="form-group"><label>Job title</label><input type="text" value="Head of Product" /></div>
+            <div class="form-group"><label>Company</label><input type="text" value="Acme Corp" /></div>
+            <button class="btn btn-primary btn-sm" onclick="showToast('Profile saved successfully!','✅')">Save changes</button>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="settings-section" id="stab-notifications">
+          <div class="settings-card">
+            <h4>Email Notifications</h4>
+            <p>Choose which emails you'd like to receive from Launchpad.</p>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">Project updates</div><div class="setting-desc">Get notified when a project status changes</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">Team activity</div><div class="setting-desc">New members, comments, and mentions</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">Weekly digest</div><div class="setting-desc">A summary of your workspace activity</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">Billing alerts</div><div class="setting-desc">Invoices, payment failures, plan changes</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">Product news</div><div class="setting-desc">New features and product announcements</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="settings-card">
+            <h4>In-App Notifications</h4>
+            <p>Control what shows up in your notification bell.</p>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">Task assignments</div><div class="setting-desc">When a task is assigned to you</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">@Mentions</div><div class="setting-desc">When someone mentions you in a comment</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">Deadline reminders</div><div class="setting-desc">48h and 24h before project due dates</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+        </div>
+
+        <!-- SECURITY -->
+        <div class="settings-section" id="stab-security">
+          <div class="settings-card">
+            <h4>Change Password</h4>
+            <p>We recommend a strong, unique password.</p>
+            <div class="form-group"><label>Current password</label><input type="password" placeholder="••••••••" /></div>
+            <div class="form-group"><label>New password</label><input type="password" placeholder="Min. 8 characters" /></div>
+            <div class="form-group"><label>Confirm new password</label><input type="password" placeholder="Repeat new password" /></div>
+            <button class="btn btn-primary btn-sm" onclick="showToast('Password updated!','🔒')">Update password</button>
+          </div>
+          <div class="settings-card">
+            <h4>Two-Factor Authentication</h4>
+            <p>Add an extra layer of security to your account.</p>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">Authenticator app</div><div class="setting-desc">Use Google Authenticator or similar</div></div><div class="toggle" onclick="this.classList.toggle('on');showToast('2FA setup would open here.','🔐')"></div></div>
+            <div class="setting-row"><div class="setting-info"><div class="setting-title">SMS backup codes</div><div class="setting-desc">Receive OTPs via text message</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="danger-zone">
+            <h4>Danger Zone</h4>
+            <p>Deleting your account is permanent and cannot be undone. All projects and data will be removed.</p>
+            <button class="btn btn-danger btn-sm" onclick="showToast('Account deletion requires email confirmation.','⚠️')">Delete my account</button>
+          </div>
+        </div>
+
+        <!-- TEAM -->
+        <div class="settings-section" id="stab-team">
+          <div class="settings-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+              <div><h4 style="margin-bottom:0">Team Members</h4><p style="margin-bottom:0;margin-top:4px">12 members on your workspace</p></div>
+              <button class="btn btn-gold btn-sm" onclick="openInviteModal()">+ Invite member</button>
+            </div>
+            <div id="team-list"></div>
+          </div>
+        </div>
+
+        <!-- INTEGRATIONS -->
+        <div class="settings-section" id="stab-integrations">
+          <div class="settings-card">
+            <h4>Connected Integrations</h4>
+            <p>Connect your favourite tools to your Launchpad workspace.</p>
+            <div id="integrations-list"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </main>
+</div><!-- /pg-app -->
+
+<!-- ======================================================= -->
+<!--  MODALS                                                 -->
+<!-- ======================================================= -->
+
+<!-- Checkout Modal -->
+<div class="modal-overlay" id="checkout-modal" onclick="handleOverlayClick(event,'checkout-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('checkout-modal')">✕</button>
+    <div id="checkout-form">
+      <div class="chip chip-gold" id="checkout-badge" style="margin-bottom:16px">⚡ Pro Plan</div>
+      <h3>Start your free trial</h3>
+      <p class="modal-sub" id="checkout-sub">14 days free, then $49/mo. No card charged today.</p>
+      <div class="form-group"><label>Full name</label><input type="text" placeholder="Sarah Johnson" id="co-name" /></div>
+      <div class="form-group"><label>Work email</label><input type="email" placeholder="you@company.com" id="co-email" /></div>
+      <div class="form-group"><label>Card number</label><input type="text" placeholder="4242 4242 4242 4242" maxlength="19" oninput="fmtCard(this)" id="co-card" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Expiry</label><input type="text" placeholder="MM / YY" maxlength="7" oninput="fmtExpiry(this)" /></div>
+        <div class="form-group"><label>CVC</label><input type="text" placeholder="123" maxlength="3" /></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="doCheckout()">Start free trial →</button>
+      </div>
+      <p style="text-align:center;font-size:.75rem;color:var(--muted);margin-top:14px">🔒 Encrypted · Cancel anytime · No hidden fees</p>
+    </div>
+    <div class="success-state" id="checkout-success">
+      <div class="success-icon">🎉</div>
+      <h3>You're in!</h3>
+      <p>Welcome aboard. Check your email for your login link.</p>
+      <button class="btn btn-primary" style="margin-top:20px" onclick="closeModal('checkout-modal');showPage('pg-auth')">Go to sign in →</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Project Modal -->
+<div class="modal-overlay" id="project-modal" onclick="handleOverlayClick(event,'project-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('project-modal')">✕</button>
+    <div id="project-form">
+      <h3>New Project</h3>
+      <p class="modal-sub">Fill in the details to kick off a new project.</p>
+      <div class="form-group"><label>Project name</label><input type="text" placeholder="e.g. Q3 Marketing Campaign" id="proj-name-input" /></div>
+      <div class="form-group"><label>Description</label><input type="text" placeholder="Brief description..." id="proj-desc-input" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="proj-status-input">
+            <option value="active">Active</option>
+            <option value="review">In Review</option>
+            <option value="paused">Paused</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Due date</label><input type="date" id="proj-due-input" /></div>
+      </div>
+      <div class="form-group">
+        <label>Icon</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="icon-picker">
+          <span style="font-size:1.4rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:2px solid var(--gold);background:rgba(201,168,76,.1)" data-icon="🚀" onclick="selectIcon(this)">🚀</span>
+          <span style="font-size:1.4rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:2px solid transparent" data-icon="🎨" onclick="selectIcon(this)">🎨</span>
+          <span style="font-size:1.4rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:2px solid transparent" data-icon="⚡" onclick="selectIcon(this)">⚡</span>
+          <span style="font-size:1.4rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:2px solid transparent" data-icon="🔧" onclick="selectIcon(this)">🔧</span>
+          <span style="font-size:1.4rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:2px solid transparent" data-icon="📱" onclick="selectIcon(this)">📱</span>
+          <span style="font-size:1.4rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:2px solid transparent" data-icon="🌐" onclick="selectIcon(this)">🌐</span>
+          <span style="font-size:1.4rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:2px solid transparent" data-icon="💡" onclick="selectIcon(this)">💡</span>
+          <span style="font-size:1.4rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:2px solid transparent" data-icon="🎯" onclick="selectIcon(this)">🎯</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('project-modal')">Cancel</button>
+        <button class="btn btn-gold" onclick="createProject()">Create project →</button>
+      </div>
+    </div>
+    <div class="success-state" id="project-success">
+      <div class="success-icon">🚀</div>
+      <h3>Project created!</h3>
+      <p>Your new project has been added to your workspace.</p>
+      <button class="btn btn-primary" style="margin-top:20px" onclick="closeModal('project-modal');switchDash('projects')">View projects →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Update Card Modal -->
+<div class="modal-overlay" id="card-modal" onclick="handleOverlayClick(event,'card-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('card-modal')">✕</button>
+    <h3>Update Payment Method</h3>
+    <p class="modal-sub">Your new card will be used for all future charges.</p>
+    <div class="form-group"><label>Card number</label><input type="text" placeholder="4242 4242 4242 4242" maxlength="19" oninput="fmtCard(this)" /></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Expiry</label><input type="text" placeholder="MM / YY" maxlength="7" oninput="fmtExpiry(this)" /></div>
+      <div class="form-group"><label>CVC</label><input type="text" placeholder="123" maxlength="3" /></div>
+    </div>
+    <div class="form-group"><label>Cardholder name</label><input type="text" placeholder="Sarah Johnson" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('card-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('card-modal');showToast('Payment method updated!','✅')">Save card →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invite Modal -->
+<div class="modal-overlay" id="invite-modal" onclick="handleOverlayClick(event,'invite-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('invite-modal')">✕</button>
+    <h3>Invite Team Member</h3>
+    <p class="modal-sub">Send an invite link to your colleague.</p>
+    <div class="form-group"><label>Email address</label><input type="email" placeholder="colleague@company.com" id="invite-email" /></div>
+    <div class="form-group">
+      <label>Role</label>
+      <select>
+        <option>Member</option>
+        <option>Admin</option>
+        <option>Viewer</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('invite-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="doInvite()">Send invite →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications Panel -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-header"><span>Notifications</span><span class="notif-clear" onclick="clearNotifs()">Mark all read</span></div>
+  <div class="notif-item"><div class="notif-dot-i"></div><div><div class="notif-text"><strong>Design Refresh</strong> moved to Review stage</div><div class="notif-ts">2 minutes ago</div></div></div>
+  <div class="notif-item"><div class="notif-dot-i"></div><div><div class="notif-text"><strong>Marcus Lee</strong> joined your workspace</div><div class="notif-ts">1 hour ago</div></div></div>
+  <div class="notif-item"><div class="notif-dot-i"></div><div><div class="notif-text">Your <strong>Pro Plan</strong> renews in 25 days</div><div class="notif-ts">3 hours ago</div></div></div>
+  <div class="notif-item"><div class="notif-dot-i read"></div><div><div class="notif-text"><strong>API v2 spec</strong> task completed by Arjun</div><div class="notif-ts">Yesterday</div></div></div>
+  <div class="notif-item"><div class="notif-dot-i read"></div><div><div class="notif-text">Weekly digest: <strong>18 tasks</strong> completed this week</div><div class="notif-ts">2 days ago</div></div></div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- ======================================================= -->
+<!--  JAVASCRIPT                                             -->
+<!-- ======================================================= -->
+<script>
+// ===== STATE =====
+var currentFilter = 'all';
+var selectedIcon = '🚀';
+var projects = [
+  {id:1,name:'Design Refresh',desc:'Revamp the product UI and design system.',status:'review',progress:78,icon:'🎨',color:'#e8d5a0',due:'Apr 20, 2026',members:['SR','AK','TL']},
+  {id:2,name:'API v2 Integration',desc:'Build out the new REST API endpoints.',status:'active',progress:55,icon:'⚡',color:'#d4edda',due:'May 5, 2026',members:['JM','SR']},
+  {id:3,name:'Mobile App MVP',desc:'First version of the iOS and Android apps.',status:'active',progress:32,icon:'📱',color:'#dde8ff',due:'Jun 1, 2026',members:['AK','ML','TL','JM']},
+  {id:4,name:'Marketing Site Revamp',desc:'Redesign the public website and landing pages.',status:'done',progress:100,icon:'🌐',color:'#f5e6d3',due:'Mar 30, 2026',members:['TL','SR']},
+  {id:5,name:'Q3 Roadmap Planning',desc:'Align on product strategy for Q3 2026.',status:'active',progress:20,icon:'🗺️',color:'#fde8e8',due:'Apr 15, 2026',members:['JM','AK']},
+  {id:6,name:'Analytics Dashboard',desc:'Build the new metrics and reporting suite.',status:'paused',progress:65,icon:'📊',color:'#e8f5e9',due:'May 20, 2026',members:['SR','ML']}
+];
+var teamMembers = [
+  {initials:'SJ',name:'Sarah Johnson',role:'Admin',email:'sarah@company.com',bg:'#c9a84c',color:'#0d0d0d'},
+  {initials:'JM',name:'Jamie Morgan',role:'Member',email:'jamie@company.com',bg:'#8b6f47',color:'#fff'},
+  {initials:'SR',name:'Sofia Reyes',role:'Admin',email:'sofia@company.com',bg:'#b84c2e',color:'#fff'},
+  {initials:'AK',name:'Arjun Kapoor',role:'Member',email:'arjun@company.com',bg:'#4a7c59',color:'#fff'},
+  {initials:'TL',name:'Tina Lee',role:'Viewer',email:'tina@company.com',bg:'#5c5c8a',color:'#fff'},
+  {initials:'ML',name:'Marcus Lee',role:'Member',email:'marcus@company.com',bg:'#7a7265',color:'#fff'}
+];
+var integrations = [
+  {name:'Slack',desc:'Team messaging and notifications',icon:'💬',connected:true},
+  {name:'GitHub',desc:'Code repository and PR tracking',icon:'🐙',connected:true},
+  {name:'Stripe',desc:'Payment processing and billing',icon:'💳',connected:true},
+  {name:'Notion',desc:'Documentation and knowledge base',icon:'📝',connected:false},
+  {name:'Figma',desc:'Design files and prototypes',icon:'🎨',connected:false},
+  {name:'Jira',desc:'Issue tracking and sprints',icon:'📋',connected:false}
+];
+
+// ===== PAGE ROUTING =====
+function showPage(id) {
+  document.querySelectorAll('.page,.auth-page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function doLogin() {
+  var e = document.getElementById('login-email').value.trim();
+  var p = document.getElementById('login-pass').value;
+  if (!e || !p) { showToast('Please enter email and password.','⚠️'); return; }
+  showToast('Signing in...','⏳');
+  setTimeout(() => { showPage('pg-app'); initApp(); showToast('Welcome back, Sarah!','👋'); }, 800);
+}
+
+function doSignup() {
+  showToast('Creating account...','⏳');
+  setTimeout(() => { showPage('pg-app'); initApp(); showToast('Account created! Welcome aboard 🎉','🚀'); }, 900);
+}
+
+function doLogout() {
+  showToast('Signing out...','👋');
+  setTimeout(() => showPage('pg-landing'), 700);
+}
+
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='signup'&&i===1)));
+  document.getElementById('auth-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('auth-signup').style.display = tab==='signup'?'block':'none';
+}
+
+// ===== APP INIT =====
+function initApp() {
+  renderWeeklyChart();
+  renderBigChart();
+  renderProjects();
+  renderTeam();
+  renderIntegrations();
+  setTimeout(() => {
+    document.querySelectorAll('.prog-bar-fill').forEach(b => { var w=b.style.width; b.style.width='0'; requestAnimationFrame(()=>setTimeout(()=>b.style.width=w,50)); });
+  }, 200);
+}
+
+// ===== NAV =====
+function switchDash(section) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  var navMap = {dashboard:0,projects:1,analytics:2,billing:3,settings:4};
+  var items = document.querySelectorAll('.nav-item');
+  if (navMap[section]!==undefined) items[navMap[section]].classList.add('active');
+  document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-'+section).classList.add('active');
+  var titles = {dashboard:'Dashboard',projects:'Projects',analytics:'Analytics',billing:'Billing',settings:'Settings'};
+  document.getElementById('topbar-title').textContent = titles[section]||section;
+  var ctas = {dashboard:'+ New Project',projects:'+ New Project',analytics:'Export',billing:'Upgrade',settings:'Save all'};
+  var ctaEl = document.getElementById('topbar-cta');
+  ctaEl.textContent = ctas[section]||'+ New';
+  ctaEl.onclick = section==='billing'?()=>showToast('Redirecting to upgrade...','⬆️'):section==='analytics'?()=>showToast('Exporting data...','📥'):section==='settings'?()=>showToast('All settings saved!','✅'):openNewProject;
+  if (section==='analytics') { setTimeout(renderBigChart,100); }
+  closeNotifPanel();
+}
+
+// ===== CHARTS =====
+function renderWeeklyChart() {
+  var data = [{v:12,l:'Mon'},{v:19,l:'Tue'},{v:8,l:'Wed'},{v:24,l:'Thu'},{v:17,l:'Fri'},{v:6,l:'Sat'},{v:3,l:'Sun'}];
+  var max = Math.max(...data.map(d=>d.v));
+  var c = document.getElementById('weekly-chart');
+  if (!c) return;
+  c.innerHTML = data.map((d,i) => `<div class="bar-col"><div class="bar ${i===3?'active-bar':''}" style="height:${(d.v/max)*100}px"><div class="bar-tooltip">${d.v} tasks</div></div></div>`).join('');
+  var labels = document.getElementById('weekly-labels');
+  if (labels) labels.innerHTML = '<div style="display:flex;gap:6px;width:100%">'+data.map(d=>`<div style="flex:1;text-align:center;font-size:.63rem;color:var(--muted);font-weight:500">${d.l}</div>`).join('')+'</div>';
+}
+
+function renderBigChart() {
+  var el = document.getElementById('big-chart');
+  if (!el) return;
+  var data = Array.from({length:30},()=>Math.floor(Math.random()*80+20));
+  var max = Math.max(...data);
+  el.innerHTML = data.map((v,i) => `<div class="big-bar ${v===max?'peak':''}" style="height:${(v/max)*100}%"><div class="bar-tooltip">${v*12} views</div></div>`).join('');
+}
+
+function setTime(t,btn) {
+  document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  var labels = {'7d':'Last 7 days','30d':'Last 30 days','90d':'Last 90 days','1y':'Last year'};
+  document.getElementById('analytics-range').textContent = labels[t];
+  renderBigChart();
+  showToast('Analytics updated for '+labels[t],'📊');
+}
+
+// ===== PROJECTS =====
+function renderProjects() {
+  var search = (document.getElementById('proj-search')||{value:''}).value.toLowerCase();
+  var filtered = projects.filter(p => {
+    var matchFilter = currentFilter==='all'||p.status===currentFilter;
+    var matchSearch = !search||p.name.toLowerCase().includes(search)||p.desc.toLowerCase().includes(search);
+    return matchFilter&&matchSearch;
+  });
+  var g = document.getElementById('projects-grid');
+  if (!g) return;
+  if (!filtered.length) {
+    g.innerHTML = '<div class="empty-state" style="grid-column:span 3"><div class="empty-icon">📁</div><h4>No projects found</h4><p>Try a different search or filter.</p></div>';
+    return;
+  }
+  var statusMap = {active:'status-active',review:'status-review',done:'status-done',paused:'status-paused'};
+  var statusLabel = {active:'Active',review:'In Review',done:'Done',paused:'Paused'};
+  var memberColors = {SR:'#b84c2e',AK:'#4a7c59',TL:'#5c5c8a',JM:'#8b6f47',ML:'#7a7265'};
+  g.innerHTML = filtered.map(p => `
+    <div class="project-card" onclick="showToast('Opening ${p.name}...','📁')">
+      <div class="proj-header">
+        <div class="proj-icon" style="background:${p.color}">${p.icon}</div>
+        <div class="proj-status ${statusMap[p.status]}">${statusLabel[p.status]}</div>
+      </div>
+      <div class="proj-name">${p.name}</div>
+      <div class="proj-desc">${p.desc}</div>
+      <div class="proj-progress">
+        <div class="proj-prog-label"><span>Progress</span><span>${p.progress}%</span></div>
+        <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${p.progress}%"></div></div>
+      </div>
+      <div class="proj-footer">
+        <div class="proj-members">${p.members.map((m,i)=>`<div class="proj-member" style="background:${memberColors[m]||'#888'};z-index:${10-i}">${m}</div>`).join('')}</div>
+        <div class="proj-due">Due ${p.due}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterProjects() { renderProjects(); }
+
+function setFilter(f,btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProjects();
+}
+
+// ===== TEAM =====
+function renderTeam() {
+  var el = document.getElementById('team-list');
+  if (!el) return;
+  var roleColor = {Admin:'chip-gold',Member:'chip-green',Viewer:'chip-blue'};
+  el.innerHTML = teamMembers.map(m=>`
+    <div class="setting-row">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:36px;height:36px;border-radius:50%;background:${m.bg};color:${m.color};display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0">${m.initials}</div>
+        <div><div class="setting-title">${m.name}</div><div class="setting-desc">${m.email}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="chip ${roleColor[m.role]}">${m.role}</div>
+        <button class="btn btn-ghost btn-sm" onclick="showToast('${m.name} settings opened.','⚙️')">···</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== INTEGRATIONS =====
+function renderIntegrations() {
+  var el = document.getElementById('integrations-list');
+  if (!el) return;
+  el.innerHTML = integrations.map((itg,i)=>`
+    <div class="setting-row">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:1.3rem;width:36px;text-align:center">${itg.icon}</div>
+        <div><div class="setting-title">${itg.name}</div><div class="setting-desc">${itg.desc}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        ${itg.connected?'<span class="chip chip-green">Connected</span>':''}
+        <button class="btn ${itg.connected?'btn-danger':'btn-gold'} btn-sm" onclick="toggleIntegration(${i},this)">${itg.connected?'Disconnect':'Connect'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleIntegration(i, btn) {
+  integrations[i].connected = !integrations[i].connected;
+  showToast(integrations[i].name+(integrations[i].connected?' connected!'.' disconnected.'),'🔗');
+  renderIntegrations();
+}
+
+// ===== SETTINGS TABS =====
+function switchSettingsTab(tab, el) {
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.settings-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stab-'+tab).classList.add('active');
+}
+
+// ===== MODALS =====
+function openCheckout(plan,price) {
+  document.getElementById('checkout-badge').textContent = '⚡ '+plan+' Plan';
+  document.getElementById('checkout-sub').textContent = '14 days free, then '+price+'. No card charged today.';
+  document.getElementById('checkout-form').style.display='block';
+  document.getElementById('checkout-success').style.display='none';
+  openModal('checkout-modal');
+}
+
+function doCheckout() {
+  var n=document.getElementById('co-name').value.trim();
+  var e=document.getElementById('co-email').value.trim();
+  var c=document.getElementById('co-card').value.trim();
+  if (!n||!e||!c) { showToast('Please fill in all fields.','⚠️'); return; }
+  document.getElementById('checkout-form').style.display='none';
+  document.getElementById('checkout-success').style.display='block';
+}
+
+function openNewProject() {
+  document.getElementById('project-form').style.display='block';
+  document.getElementById('project-success').style.display='none';
+  document.getElementById('proj-name-input').value='';
+  document.getElementById('proj-desc-input').value='';
+  openModal('project-modal');
+}
+
+function createProject() {
+  var name=document.getElementById('proj-name-input').value.trim();
+  var desc=document.getElementById('proj-desc-input').value.trim();
+  var status=document.getElementById('proj-status-input').value;
+  var due=document.getElementById('proj-due-input').value;
+  if (!name) { showToast('Please enter a project name.','⚠️'); return; }
+  var colors = ['#e8d5a0','#d4edda','#dde8ff','#fde8e8','#f5e6d3','#e8f5e9'];
+  projects.push({id:Date.now(),name,desc:desc||'No description.',status,progress:0,icon:selectedIcon,color:colors[projects.length%colors.length],due:due||'TBD',members:['SJ']});
+  document.getElementById('stat-projects').textContent = projects.filter(p=>p.status==='active').length + (projects.filter(p=>p.status!=='done').length - projects.filter(p=>p.status==='active').length ? '' : '');
+  document.getElementById('stat-projects').textContent = projects.filter(p=>p.status!=='done').length;
+  document.getElementById('project-form').style.display='none';
+  document.getElementById('project-success').style.display='block';
+  renderProjects();
+}
+
+function openInviteModal() { openModal('invite-modal'); }
+function openCardModal() { openModal('card-modal'); }
+
+function doInvite() {
+  var e=document.getElementById('invite-email').value.trim();
+  if (!e) { showToast('Enter an email address.','⚠️'); return; }
+  closeModal('invite-modal');
+  showToast('Invite sent to '+e+'!','📨');
+  document.getElementById('invite-email').value='';
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleOverlayClick(e,id) {
+  if (e.target===document.getElementById(id)) closeModal(id);
+}
+
+function selectIcon(el) {
+  document.querySelectorAll('#icon-picker span').forEach(s=>{s.style.borderColor='transparent';s.style.background='transparent'});
+  el.style.borderColor='var(--gold)';
+  el.style.background='rgba(201,168,76,.1)';
+  selectedIcon=el.dataset.icon;
+}
+
+// ===== NOTIFICATIONS =====
+function toggleNotifs() {
+  document.getElementById('notif-panel').classList.toggle('open');
+}
+function closeNotifPanel() {
+  document.getElementById('notif-panel').classList.remove('open');
+}
+function clearNotifs() {
+  document.querySelectorAll('.notif-dot-i').forEach(d=>d.classList.add('read'));
+  document.getElementById('notif-dot').style.display='none';
+  showToast('All notifications marked as read.','✅');
+}
+
+// ===== BILLING =====
+function setCycle(cycle,el) {
+  document.querySelectorAll('.cycle-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  var price=cycle==='annual'?'$39':'$49';
+  document.querySelector('.billing-price').innerHTML=price+'<span>/mo</span>';
+  showToast(cycle==='annual'?'Switched to annual billing — saving 20%!':'Switched to monthly billing.','💳');
+}
+
+// ===== TOAST =====
+function showToast(msg,icon) {
+  var wrap=document.getElementById('toast-wrap');
+  var t=document.createElement('div');
+  t.className='toast success';
+  t.innerHTML=`<span class="t-icon">${icon||'ℹ️'}</span> ${msg}`;
+  wrap.appendChild(t);
+  setTimeout(()=>{t.style.animation='toastOut .3s ease forwards';setTimeout(()=>t.remove(),300)},3000);
+}
+
+// ===== FORM HELPERS =====
+function fmtCard(inp) {
+  var v=inp.value.replace(/\D/g,'').substring(0,16);
+  inp.value=v.replace(/(.{4})/g,'$1 ').trim();
+}
+function fmtExpiry(inp) {
+  var v=inp.value.replace(/\D/g,'').substring(0,4);
+  if(v.length>=2) v=v.substring(0,2)+' / '+v.substring(2);
+  inp.value=v;
+}
+
+// ===== KEYBOARD =====
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));closeNotifPanel();document.body.style.overflow=''}});
+document.addEventListener('click',e=>{if(!e.target.closest('#notif-panel')&&!e.target.closest('.notif-btn'))closeNotifPanel()});
+
+// ===== DEMO: auto-start app for testing (remove in prod) =====
+// showPage('pg-app'); initApp();
+</script>
+</body>
+</html>
